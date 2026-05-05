@@ -11,8 +11,8 @@ import ShelterTable from "@/components/ShelterTable";
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center rounded-lg bg-[var(--muted)]">
-      <div className="text-[var(--muted-foreground)]">Se încarcă harta...</div>
+    <div className="flex h-full items-center justify-center rounded-lg bg-(--muted)">
+      <div className="text-(--muted-foreground)">Se încarcă harta...</div>
     </div>
   ),
 });
@@ -48,7 +48,7 @@ export default function SheltersApp() {
   }, [selectedSectors, selectedTypes, selectedCapacity]);
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-(--background)">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <h1 className="mb-8 text-center text-4xl font-bold text-black md:text-5xl">
           Adăposturi București
@@ -60,8 +60,8 @@ export default function SheltersApp() {
               onClick={() => setViewMode("map")}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 viewMode === "map"
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--border)]"
+                  ? "bg-(--primary) text-(--primary-foreground)"
+                  : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
               }`}
             >
               Hartă
@@ -70,14 +70,14 @@ export default function SheltersApp() {
               onClick={() => setViewMode("table")}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 viewMode === "table"
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--border)]"
+                  ? "bg-(--primary) text-(--primary-foreground)"
+                  : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
               }`}
             >
               Tabel
             </button>
           </div>
-          <div className="text-sm text-[var(--muted-foreground)]">
+          <div className="text-sm text-(--muted-foreground)">
             {filteredShelters.length} adăposturi găsite
           </div>
         </div>
@@ -93,18 +93,18 @@ export default function SheltersApp() {
               onCapacityChange={setSelectedCapacity}
             />
 
-            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
-              <h3 className="mb-2 font-semibold text-[var(--foreground)]">
+            <div className="mt-4 rounded-lg border border-(--border) bg-(--background) p-4">
+              <h3 className="mb-2 font-semibold text-(--foreground)">
                 Legendă
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-4 w-4 rounded-full bg-green-500" />
-                  <span className="text-[var(--foreground)]">Public</span>
+                  <span className="text-(--foreground)">Public</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-4 w-4 rounded-full bg-black" />
-                  <span className="text-[var(--foreground)]">Privat</span>
+                  <span className="text-(--foreground)">Privat</span>
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function SheltersApp() {
 
           <div className="order-1 lg:order-2">
             {viewMode === "map" ? (
-              <div className="h-[500px] overflow-hidden rounded-lg border border-[var(--border)] lg:h-[600px]">
+              <div className="h-[500px] overflow-hidden rounded-lg border border-(--border) lg:h-[600px]">
                 <MapComponent shelters={filteredShelters} />
               </div>
             ) : (

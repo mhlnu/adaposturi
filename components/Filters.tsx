@@ -52,21 +52,21 @@ export default function Filters({
   };
 
   return (
-    <div className="space-y-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
+    <div className="space-y-4 rounded-lg border border-(--border) bg-(--background) p-4">
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-[var(--foreground)]">Sector</h3>
+          <h3 className="font-semibold text-(--foreground)">Sector</h3>
           <div className="flex gap-2">
             <button
               onClick={selectAllSectors}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
             >
               Toate
             </button>
-            <span className="text-[var(--muted-foreground)]">|</span>
+            <span className="text-(--muted-foreground)">|</span>
             <button
               onClick={clearSectors}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
             >
               Niciunul
             </button>
@@ -77,11 +77,10 @@ export default function Filters({
             <button
               key={sector}
               onClick={() => toggleSector(sector)}
-              className={`rounded-md px-3 py-1 text-sm transition-colors ${
-                selectedSectors.includes(sector)
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--border)]"
-              }`}
+              className={`rounded-md px-3 py-1 text-sm transition-colors ${selectedSectors.includes(sector)
+                ? "bg-(--primary) text-(--primary-foreground)"
+                : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
+                }`}
             >
               Sector {sector}
             </button>
@@ -91,18 +90,18 @@ export default function Filters({
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-[var(--foreground)]">Tip</h3>
+          <h3 className="font-semibold text-(--foreground)">Tip</h3>
           <div className="flex gap-2">
             <button
               onClick={selectAllTypes}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
             >
               Toate
             </button>
-            <span className="text-[var(--muted-foreground)]">|</span>
+            <span className="text-(--muted-foreground)">|</span>
             <button
               onClick={clearTypes}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
             >
               Niciunul
             </button>
@@ -113,16 +112,14 @@ export default function Filters({
             <button
               key={type}
               onClick={() => toggleType(type)}
-              className={`flex items-center gap-2 rounded-md px-3 py-1 text-sm capitalize transition-colors ${
-                selectedTypes.includes(type)
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--border)]"
-              }`}
+              className={`flex items-center gap-2 rounded-md px-3 py-1 text-sm capitalize transition-colors ${selectedTypes.includes(type)
+                ? "bg-(--primary) text-(--primary-foreground)"
+                : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
+                }`}
             >
               <span
-                className={`inline-block h-3 w-3 rounded-full ${
-                  type === "public" ? "bg-green-500" : "bg-black"
-                }`}
+                className={`inline-block h-3 w-3 rounded-full ${type === "public" ? "bg-green-500" : "bg-black"
+                  }`}
               />
               {type === "public" ? "Public" : "Privat"}
             </button>
@@ -131,13 +128,13 @@ export default function Filters({
       </div>
 
       <div>
-        <h3 className="mb-2 font-semibold text-[var(--foreground)]">
+        <h3 className="mb-2 font-semibold text-(--foreground)">
           Capacitate
         </h3>
         <select
           value={selectedCapacity}
           onChange={(e) => onCapacityChange(e.target.value)}
-          className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+          className="w-full rounded-md border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--foreground) focus:outline-none focus:ring-2 focus:ring-(--primary)"
         >
           {CAPACITY_RANGES.map((range) => (
             <option key={range.label} value={range.label}>
