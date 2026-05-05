@@ -63,12 +63,11 @@ export default function MapComponent({ shelters }: MapComponentProps) {
           <Popup>
             <div className="space-y-1 text-sm">
               <p>
-                <strong>Capacitate:</strong> {shelter.capacity}
+                <strong>Capacitate:</strong> {shelter.capacity} persoane
               </p>
               <p>
                 <strong>Adresă:</strong> {shelter.address}
-              </p>
-              <p>
+                <br />
                 <strong>Sector:</strong> {shelter.sector}
               </p>
               <p>
