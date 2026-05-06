@@ -34,6 +34,44 @@ const normalizeType = (type: string) => {
     return type;
 };
 
+const SortIcon = ({
+    field,
+    sortField,
+    sortDirection,
+}: {
+    field: Exclude<SortField, null>;
+    sortField: SortField;
+    sortDirection: SortDirection;
+}) => {
+    if (sortField !== field) {
+        return (
+            <svg
+                className="ml-1 inline h-4 w-4 text-[var(--muted-foreground)]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                />
+            </svg>
+        );
+    }
+
+    return sortDirection === "asc" ? (
+        <svg className="ml-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+    ) : (
+        <svg className="ml-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+};
+
 export default function ShelterTable({ shelters }: ShelterTableProps) {
     const [sortField, setSortField] = useState<SortField>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -67,36 +105,6 @@ export default function ShelterTable({ shelters }: ShelterTableProps) {
         });
     }, [shelters, sortField, sortDirection]);
 
-    const SortIcon = ({ field }: { field: Exclude<SortField, null> }) => {
-        if (sortField !== field) {
-            return (
-                <svg
-                    className="ml-1 inline h-4 w-4 text-[var(--muted-foreground)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-                    />
-                </svg>
-            );
-        }
-
-        return sortDirection === "asc" ? (
-            <svg className="ml-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-        ) : (
-            <svg className="ml-1 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-        );
-    };
-
     return (
         <div className="overflow-hidden rounded-lg border border-[var(--border)]">
             <div className="overflow-x-auto">
@@ -108,7 +116,7 @@ export default function ShelterTable({ shelters }: ShelterTableProps) {
                                 onClick={() => handleSort("town")}
                             >
                                 Loc.
-                                <SortIcon field="town" />
+                                <SortIcon field="town" sortField={sortField} sortDirection={sortDirection} />
                             </th>
 
                             <th className="px-4 py-3 font-semibold text-[var(--foreground)]">Adresă</th>
@@ -120,7 +128,7 @@ export default function ShelterTable({ shelters }: ShelterTableProps) {
                                 onClick={() => handleSort("status")}
                             >
                                 Stare
-                                <SortIcon field="status" />
+                                <SortIcon field="status" sortField={sortField} sortDirection={sortDirection} />
                             </th>
 
                             <th
@@ -128,7 +136,7 @@ export default function ShelterTable({ shelters }: ShelterTableProps) {
                                 onClick={() => handleSort("capacity")}
                             >
                                 Cap.
-                                <SortIcon field="capacity" />
+                                <SortIcon field="capacity" sortField={sortField} sortDirection={sortDirection} />
                             </th>
 
                             <th className="px-4 py-3 font-semibold text-[var(--foreground)]">Geo</th>

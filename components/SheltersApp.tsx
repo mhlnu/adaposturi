@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
-import sheltersData from "@/data/allShelters.json";
-import { CAPACITY_RANGES, TYPES, Shelter } from "@/lib/types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { CAPACITY_RANGES, TYPES, SheltersAppProps, ViewMode } from "@/lib/types";
+import { formatRoNumber, normalizeType } from "@/lib/utils";
 import Filters from "@/components/Filters";
 import ShelterTable from "@/components/ShelterTable";
 
@@ -16,39 +17,21 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
     ),
 });
 
-type ViewMode = "map" | "table";
-
-interface ShelterLocation {
-    id: string;
-    name: string;
-    center: {
-        lat: number;
-        lon: number;
-    };
-    items: Shelter[];
-}
-
-const defaultLocation = "B";
-
-export default function SheltersApp() {
-    const shelters = sheltersData?.sort((a, b) => a.name.localeCompare(b.name, "ro")) ?? [];
-    const locations = shelters as ShelterLocation[];
+export default function SheltersApp({ counties, initialCounty, selectedCounty }: SheltersAppProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const [_isPending, startTransition] = useTransition();
 
     const [viewMode, setViewMode] = useState<ViewMode>("map");
-    const [selectedCounty, setSelectedCounty] = useState<string>(defaultLocation);
     const [selectedTowns, setSelectedTowns] = useState<string[]>([]);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([...TYPES]);
     const [selectedCapacities, setSelectedCapacities] = useState<string[]>([]);
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
-    const currentLocation =
-        locations.find(location => location.id === selectedCounty) ??
-        locations.find(location => location.id === defaultLocation) ??
-        locations[0];
+    const currentLocation = initialCounty;
 
     const towns = useMemo(() => {
-        if (!currentLocation) return [];
-
         return Array.from(
             new Set(
                 currentLocation.items
@@ -62,16 +45,21 @@ export default function SheltersApp() {
     const selectedTownValues = selectedTowns.length === 0 ? towns : selectedTowns;
 
     const handleCountyChange = (county: string) => {
-        setSelectedCounty(county);
         setSelectedTowns([]);
         setSelectedTypes([...TYPES]);
         setSelectedCapacities([]);
         setSelectedStatuses([]);
+
+        const params = new URLSearchParams(searchParams.toString());
+
+        params.set("county", county);
+
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`);
+        });
     };
 
     const filteredShelters = useMemo(() => {
-        if (!currentLocation) return [];
-
         const capacityRanges = selectedCapacities
             .map(capacity => CAPACITY_RANGES.find(range => range.label === capacity))
             .filter(Boolean);
@@ -103,9 +91,9 @@ export default function SheltersApp() {
                 </h1>
 
                 <Filters
-                    counties={locations.map(location => ({
-                        label: location.name,
-                        value: location.id,
+                    counties={counties.map(county => ({
+                        label: county.name,
+                        value: county.id,
                     }))}
                     towns={towns}
                     selectedCounty={selectedCounty}
@@ -147,11 +135,8 @@ export default function SheltersApp() {
                         </div>
 
                         <div className="text-sm">
-                            <strong>
-                                {filteredShelters?.length?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
-                            </strong>{" "}
-                            adăposturi,{" "}
-                            <strong>{totalCapacity?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong> locuri
+                            <strong>{formatRoNumber(filteredShelters.length)}</strong> adăposturi,{" "}
+                            <strong>{formatRoNumber(totalCapacity)}</strong> locuri
                         </div>
                     </div>
 
@@ -173,9 +158,3 @@ export default function SheltersApp() {
         </div>
     );
 }
-
-const normalizeType = (type: string) => {
-    if (type === "privat") return "private";
-
-    return type;
-};

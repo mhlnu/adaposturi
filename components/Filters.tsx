@@ -1,57 +1,19 @@
 "use client";
 
-import { CAPACITY_RANGES, STATUS, TYPES } from "@/lib/types";
+import {
+    CAPACITY_RANGES,
+    STATUS,
+    TYPES,
+    ALL_VALUE,
+    TYPE_OPTIONS,
+    CAPACITY_LABELS,
+    STATUS_LABELS,
+    FiltersProps,
+} from "@/lib/types";
+import { toArrayValue, renderMultiValue } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { clsx } from "clsx";
 import { Filter } from "lucide-react";
-
-interface FiltersProps {
-    counties: {
-        label: string;
-        value: string;
-    }[];
-    towns: string[];
-    selectedCounty: string;
-    selectedTowns: string[];
-    selectedTypes: string[];
-    selectedCapacities: string[];
-    selectedStatuses: string[];
-    onCountyChange: (county: string) => void;
-    onTownChange: (towns: string[]) => void;
-    onTypeChange: (types: string[]) => void;
-    onCapacityChange: (capacity: string[]) => void;
-    onStatusChange: (status: string[]) => void;
-}
-
-const ALL_VALUE = "Toate";
-
-const TYPE_OPTIONS = [
-    { label: "Public", value: "public" },
-    { label: "Privat", value: "private" },
-] as const;
-
-const toArrayValue = (value: string | string[] | null) => {
-    if (!value) return [];
-
-    return Array.isArray(value) ? value : [value];
-};
-
-const renderMultiValue = (values: string[], labels: Record<string, string>, placeholder: string) => {
-    if (values.length === 0) return placeholder;
-
-    const firstLabel = labels[values[0]] ?? values[0];
-    const additionalCount = values.length - 1;
-
-    if (additionalCount === 0) return firstLabel;
-
-    return `${firstLabel} (+${additionalCount})`;
-};
-
-const CAPACITY_LABELS = Object.fromEntries(CAPACITY_RANGES.map(range => [range.label, range.label]));
-
-const STATUS_LABELS = Object.fromEntries(
-    STATUS.filter(status => status.value !== "all").map(status => [status.value, status.label])
-);
 
 export default function Filters({
     counties,

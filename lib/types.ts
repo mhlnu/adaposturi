@@ -1,15 +1,13 @@
-export interface Shelter {
-    id: number;
-    county: string;
-    town: string;
-    address: string;
-    type: "public" | "private" | "privat";
-    lat: number;
-    lon: number;
-    capacity: number;
-    status: string;
-    index: number;
-}
+// constants
+
+export const defaultLocation = "B";
+export const ALL_VALUE = "Toate";
+
+export const TYPES = ["public", "private"] as const;
+export const TYPE_OPTIONS = [
+    { label: "Public", value: "public" },
+    { label: "Privat", value: "private" },
+] as const;
 
 export const CAPACITY_RANGES = [
     { label: "Toate", min: 0, max: Infinity },
@@ -23,6 +21,7 @@ export const CAPACITY_RANGES = [
     { label: "351-400", min: 351, max: 400 },
     { label: "400+", min: 401, max: Infinity },
 ];
+export const CAPACITY_LABELS = Object.fromEntries(CAPACITY_RANGES.map(range => [range.label, range.label]));
 
 export const STATUS = [
     { label: "Toate", value: "all" },
@@ -30,6 +29,81 @@ export const STATUS = [
     { label: "Parțial funcțional", value: "orange" },
     { label: "Nefuncțional", value: "red" },
 ];
+export const STATUS_LABELS = Object.fromEntries(
+    STATUS.filter(status => status.value !== "all").map(status => [status.value, status.label])
+);
 
-export const SECTORS = [1, 2, 3, 4, 5, 6];
-export const TYPES = ["public", "private"] as const;
+// types
+
+export interface HomeProps {
+    searchParams: {
+        county?: string;
+    };
+}
+
+export interface Shelter {
+    id: number;
+    county: string;
+    town: string;
+    address: string;
+    type: "public" | "private" | "privat";
+    lat: number;
+    lon: number;
+    capacity: number;
+    status: string;
+    index: number;
+}
+
+export interface ShelterLocation {
+    id: string;
+    name: string;
+    center: {
+        lat: number;
+        lon: number;
+    };
+    items: Shelter[];
+}
+
+export interface SheltersAppProps {
+    counties: CountySummary[];
+    initialCounty: ShelterLocation;
+    selectedCounty: string;
+}
+
+export type ViewMode = "map" | "table";
+
+export interface MapComponentProps {
+    shelters: Shelter[];
+    center: {
+        lat: number;
+        lon: number;
+    };
+}
+
+export interface MapCenterUpdaterProps {
+    center: {
+        lat: number;
+        lon: number;
+    };
+    zoom?: number;
+}
+
+export interface FiltersProps {
+    counties: {
+        label: string;
+        value: string;
+    }[];
+    towns: string[];
+    selectedCounty: string;
+    selectedTowns: string[];
+    selectedTypes: string[];
+    selectedCapacities: string[];
+    selectedStatuses: string[];
+    onCountyChange: (county: string) => void;
+    onTownChange: (towns: string[]) => void;
+    onTypeChange: (types: string[]) => void;
+    onCapacityChange: (capacity: string[]) => void;
+    onStatusChange: (status: string[]) => void;
+}
+
+export type CountySummary = Omit<ShelterLocation, "items">;
