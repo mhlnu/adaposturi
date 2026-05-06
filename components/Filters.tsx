@@ -1,148 +1,230 @@
 "use client";
 
-import { SECTORS, TYPES, CAPACITY_RANGES } from "@/lib/types";
+import { CAPACITY_RANGES, STATUS, TYPES } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FiltersProps {
-  selectedSectors: number[];
-  selectedTypes: string[];
-  selectedCapacity: string;
-  onSectorChange: (sectors: number[]) => void;
-  onTypeChange: (types: string[]) => void;
-  onCapacityChange: (capacity: string) => void;
+    counties: {
+        label: string;
+        value: string;
+    }[];
+    towns: string[];
+    selectedCounty: string;
+    selectedTowns: string[];
+    selectedTypes: string[];
+    selectedCapacities: string[];
+    selectedStatuses: string[];
+    onCountyChange: (county: string) => void;
+    onTownChange: (towns: string[]) => void;
+    onTypeChange: (types: string[]) => void;
+    onCapacityChange: (capacity: string[]) => void;
+    onStatusChange: (status: string[]) => void;
 }
 
+const ALL_VALUE = "Toate";
+
+const TYPE_OPTIONS = [
+    { label: "Public", value: "public" },
+    { label: "Privat", value: "private" },
+] as const;
+
+const toArrayValue = (value: string | string[] | null) => {
+    if (!value) return [];
+
+    return Array.isArray(value) ? value : [value];
+};
+
+const renderMultiValue = (values: string[], labels: Record<string, string>, placeholder: string) => {
+    if (values.length === 0) return placeholder;
+
+    const firstLabel = labels[values[0]] ?? values[0];
+    const additionalCount = values.length - 1;
+
+    if (additionalCount === 0) return firstLabel;
+
+    return `${firstLabel} (+${additionalCount})`;
+};
+
+const CAPACITY_LABELS = Object.fromEntries(CAPACITY_RANGES.map(range => [range.label, range.label]));
+
+const STATUS_LABELS = Object.fromEntries(
+    STATUS.filter(status => status.value !== "all").map(status => [status.value, status.label])
+);
+
 export default function Filters({
-  selectedSectors,
-  selectedTypes,
-  selectedCapacity,
-  onSectorChange,
-  onTypeChange,
-  onCapacityChange,
+    counties,
+    towns,
+    selectedCounty,
+    selectedTowns,
+    selectedTypes,
+    selectedCapacities,
+    selectedStatuses,
+    onCountyChange,
+    onTownChange,
+    onTypeChange,
+    onCapacityChange,
+    onStatusChange,
 }: FiltersProps) {
-  const toggleSector = (sector: number) => {
-    if (selectedSectors.includes(sector)) {
-      onSectorChange(selectedSectors.filter((s) => s !== sector));
-    } else {
-      onSectorChange([...selectedSectors, sector]);
-    }
-  };
+    const selectedCountyLabel = counties.find(county => county.value === selectedCounty)?.label ?? selectedCounty;
 
-  const toggleType = (type: string) => {
-    if (selectedTypes.includes(type)) {
-      onTypeChange(selectedTypes.filter((t) => t !== type));
-    } else {
-      onTypeChange([...selectedTypes, type]);
-    }
-  };
+    const selectedTownValue =
+        selectedTowns.length === towns.length || selectedTowns.length === 0 ? ALL_VALUE : selectedTowns[0];
 
-  const selectAllSectors = () => {
-    onSectorChange([...SECTORS]);
-  };
+    const selectedTypeValue =
+        selectedTypes.length === TYPES.length || selectedTypes.length === 0
+            ? ALL_VALUE
+            : (TYPE_OPTIONS.find(type => type.value === selectedTypes[0])?.label ?? ALL_VALUE);
 
-  const clearSectors = () => {
-    onSectorChange([]);
-  };
+    const handleCountyChange = (label: string | null) => {
+        if (!label) return;
 
-  const selectAllTypes = () => {
-    onTypeChange([...TYPES]);
-  };
+        const county = counties.find(item => item.label === label);
 
-  const clearTypes = () => {
-    onTypeChange([]);
-  };
+        if (!county) return;
 
-  return (
-    <div className="space-y-4 rounded-lg border border-(--border) bg-(--background) p-4">
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-(--foreground)">Sector</h3>
-          <div className="flex gap-2">
-            <button
-              onClick={selectAllSectors}
-              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
-            >
-              Toate
-            </button>
-            <span className="text-(--muted-foreground)">|</span>
-            <button
-              onClick={clearSectors}
-              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
-            >
-              Niciunul
-            </button>
-          </div>
+        onCountyChange(county.value);
+    };
+
+    const handleTownChange = (town: string | null) => {
+        if (!town || town === ALL_VALUE) {
+            onTownChange([]);
+            return;
+        }
+
+        onTownChange([town]);
+    };
+
+    const handleTypeChange = (label: string | null) => {
+        if (!label || label === ALL_VALUE) {
+            onTypeChange([...TYPES]);
+            return;
+        }
+
+        const type = TYPE_OPTIONS.find(item => item.label === label);
+
+        if (!type) return;
+
+        onTypeChange([type.value]);
+    };
+
+    const handleCapacityChange = (value: string | string[] | null) => {
+        const values = toArrayValue(value).filter(item => item !== ALL_VALUE);
+
+        onCapacityChange(values);
+    };
+
+    const handleStatusChange = (value: string | string[] | null) => {
+        const values = toArrayValue(value).filter(item => item !== "all");
+
+        onStatusChange(values);
+    };
+
+    return (
+        <div className="mb-8 flex flex-row flex-wrap items-end gap-4 rounded-lg border border-(--border) bg-(--background) p-4">
+            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
+                <label className="text-sm font-medium text-(--foreground)">Județ</label>
+
+                <Select value={selectedCountyLabel} onValueChange={handleCountyChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Alege județul" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        {counties.map(county => (
+                            <SelectItem key={county.value} value={county.label}>
+                                {county.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
+                <label className="text-sm font-medium text-(--foreground)">Localitate / Sector</label>
+
+                <Select value={selectedTownValue} onValueChange={handleTownChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Alege localitatea" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        <SelectItem value={ALL_VALUE}>Toate localitățile</SelectItem>
+
+                        {towns.map(town => (
+                            <SelectItem key={town} value={town}>
+                                {town}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
+                <label className="text-sm font-medium text-(--foreground)">Public / Privat</label>
+
+                <Select value={selectedTypeValue} onValueChange={handleTypeChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Alege tipul" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        <SelectItem value={ALL_VALUE}>Toate tipurile</SelectItem>
+
+                        {TYPE_OPTIONS.map(type => (
+                            <SelectItem key={type.value} value={type.label}>
+                                <span className="flex items-center gap-2">
+                                    <span
+                                        className={`inline-block h-3 w-3 rounded-full ${
+                                            type.value === "public" ? "bg-[#0088ff]" : "bg-black"
+                                        }`}
+                                    />
+                                    {type.label}
+                                </span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
+                <label className="text-sm font-medium text-(--foreground)">Capacitate</label>
+
+                <Select multiple value={selectedCapacities} onValueChange={handleCapacityChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Alege capacitatea">
+                            {() => renderMultiValue(selectedCapacities, CAPACITY_LABELS, "Toate capacitățile")}
+                        </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        {CAPACITY_RANGES.filter(range => range.label !== ALL_VALUE).map(range => (
+                            <SelectItem key={range.label} value={range.label}>
+                                {range.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
+                <label className="text-sm font-medium text-(--foreground)">Stare</label>
+
+                <Select multiple value={selectedStatuses} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Alege starea">
+                            {() => renderMultiValue(selectedStatuses, STATUS_LABELS, "Toate stările")}
+                        </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent>
+                        {STATUS.filter(status => status.value !== "all").map(status => (
+                            <SelectItem key={status.value} value={status.value}>
+                                {status.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {SECTORS.map((sector) => (
-            <button
-              key={sector}
-              onClick={() => toggleSector(sector)}
-              className={`rounded-md px-3 py-1 text-sm transition-colors ${selectedSectors.includes(sector)
-                ? "bg-(--primary) text-(--primary-foreground)"
-                : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
-                }`}
-            >
-              Sector {sector}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-(--foreground)">Tip</h3>
-          <div className="flex gap-2">
-            <button
-              onClick={selectAllTypes}
-              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
-            >
-              Toate
-            </button>
-            <span className="text-(--muted-foreground)">|</span>
-            <button
-              onClick={clearTypes}
-              className="text-xs text-(--muted-foreground) hover:text-(--foreground)"
-            >
-              Niciunul
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() => toggleType(type)}
-              className={`flex items-center gap-2 rounded-md px-3 py-1 text-sm capitalize transition-colors ${selectedTypes.includes(type)
-                ? "bg-(--primary) text-(--primary-foreground)"
-                : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
-                }`}
-            >
-              <span
-                className={`inline-block h-3 w-3 rounded-full ${type === "public" ? "bg-green-500" : "bg-black"
-                  }`}
-              />
-              {type === "public" ? "Public" : "Privat"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 font-semibold text-(--foreground)">
-          Capacitate
-        </h3>
-        <select
-          value={selectedCapacity}
-          onChange={(e) => onCapacityChange(e.target.value)}
-          className="w-full rounded-md border border-(--border) bg-(--background) px-3 py-2 text-sm text-(--foreground) focus:outline-none focus:ring-2 focus:ring-(--primary)"
-        >
-          {CAPACITY_RANGES.map((range) => (
-            <option key={range.label} value={range.label}>
-              {range.label}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
+    );
 }
