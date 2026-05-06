@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="ro" className={cn("bg-(--background)", "font-sans", inter.variable)}>
+        <html lang="ro" className={cn("font-sans", inter.variable)}>
             <body className={`${karla.variable} font-sans antialiased`}>{children}</body>
         </html>
     );

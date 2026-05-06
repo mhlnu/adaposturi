@@ -2,6 +2,8 @@
 
 import { CAPACITY_RANGES, STATUS, TYPES } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { clsx } from "clsx";
+import { Filter } from "lucide-react";
 
 interface FiltersProps {
     counties: {
@@ -120,12 +122,16 @@ export default function Filters({
     };
 
     return (
-        <div className="mb-8 flex flex-row flex-wrap items-end gap-4 rounded-lg border border-(--border) bg-(--background) p-4">
-            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
-                <label className="text-sm font-medium text-(--foreground)">Județ</label>
+        <div className="mb-8 flex flex-row flex-wrap items-end gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-md">
+            <div className="bg-primary flex h-9 w-10 items-center justify-center rounded-md text-white">
+                <Filter size={16} />
+            </div>
 
+            <div className="flex max-w-[160px] flex-1 flex-col gap-2">
                 <Select value={selectedCountyLabel} onValueChange={handleCountyChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                        className={clsx("w-full", selectedCountyLabel?.length > 0 && "bg-(--primary) text-white")}
+                    >
                         <SelectValue placeholder="Alege județul" />
                     </SelectTrigger>
 
@@ -139,12 +145,14 @@ export default function Filters({
                 </Select>
             </div>
 
-            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
-                <label className="text-sm font-medium text-(--foreground)">Localitate / Sector</label>
-
+            <div className="flex max-w-[160px] flex-1 flex-col gap-2">
                 <Select value={selectedTownValue} onValueChange={handleTownChange}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Alege localitatea" />
+                    <SelectTrigger
+                        className={clsx("w-full", selectedTownValue !== ALL_VALUE && "bg-(--primary) text-white")}
+                    >
+                        <SelectValue placeholder="Alege localitatea">
+                            {selectedTownValue === ALL_VALUE ? "Toate localitățile" : selectedTownValue}
+                        </SelectValue>
                     </SelectTrigger>
 
                     <SelectContent>
@@ -159,16 +167,18 @@ export default function Filters({
                 </Select>
             </div>
 
-            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
-                <label className="text-sm font-medium text-(--foreground)">Public / Privat</label>
-
+            <div className="flex max-w-[160px] flex-1 flex-col gap-2">
                 <Select value={selectedTypeValue} onValueChange={handleTypeChange}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Alege tipul" />
+                    <SelectTrigger
+                        className={clsx("w-full", selectedTypeValue !== ALL_VALUE && "bg-(--primary) text-white")}
+                    >
+                        <SelectValue placeholder="Alege tipul">
+                            {selectedTypeValue === ALL_VALUE ? "Public și privat" : selectedTypeValue}
+                        </SelectValue>
                     </SelectTrigger>
 
                     <SelectContent>
-                        <SelectItem value={ALL_VALUE}>Toate tipurile</SelectItem>
+                        <SelectItem value={ALL_VALUE}>Public și privat</SelectItem>
 
                         {TYPE_OPTIONS.map(type => (
                             <SelectItem key={type.value} value={type.label}>
@@ -186,13 +196,13 @@ export default function Filters({
                 </Select>
             </div>
 
-            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
-                <label className="text-sm font-medium text-(--foreground)">Capacitate</label>
-
+            <div className="flex max-w-[160px] flex-1 flex-col gap-2">
                 <Select multiple value={selectedCapacities} onValueChange={handleCapacityChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                        className={clsx("w-full", selectedCapacities.length > 0 && "bg-(--primary) text-white")}
+                    >
                         <SelectValue placeholder="Alege capacitatea">
-                            {() => renderMultiValue(selectedCapacities, CAPACITY_LABELS, "Toate capacitățile")}
+                            {() => renderMultiValue(selectedCapacities, CAPACITY_LABELS, "Capacitate")}
                         </SelectValue>
                     </SelectTrigger>
 
@@ -206,13 +216,13 @@ export default function Filters({
                 </Select>
             </div>
 
-            <div className="flex min-w-[180px] flex-1 flex-col gap-2">
-                <label className="text-sm font-medium text-(--foreground)">Stare</label>
-
+            <div className="flex max-w-[190px] flex-1 flex-col gap-2">
                 <Select multiple value={selectedStatuses} onValueChange={handleStatusChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                        className={clsx("w-full", selectedStatuses.length > 0 && "bg-(--primary) text-white")}
+                    >
                         <SelectValue placeholder="Alege starea">
-                            {() => renderMultiValue(selectedStatuses, STATUS_LABELS, "Toate stările")}
+                            {() => renderMultiValue(selectedStatuses, STATUS_LABELS, "Stare")}
                         </SelectValue>
                     </SelectTrigger>
 

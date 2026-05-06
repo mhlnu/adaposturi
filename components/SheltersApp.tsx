@@ -31,7 +31,8 @@ interface ShelterLocation {
 const defaultLocation = "B";
 
 export default function SheltersApp() {
-    const locations = sheltersData as ShelterLocation[];
+    const shelters = sheltersData?.sort((a, b) => a.name.localeCompare(b.name, "ro")) ?? [];
+    const locations = shelters as ShelterLocation[];
 
     const [viewMode, setViewMode] = useState<ViewMode>("map");
     const [selectedCounty, setSelectedCounty] = useState<string>(defaultLocation);
@@ -95,7 +96,7 @@ export default function SheltersApp() {
     }, [filteredShelters]);
 
     return (
-        <div className="flex min-h-screen justify-center bg-(--background)">
+        <div className="flex min-h-screen justify-center bg-stone-50">
             <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-8">
                 <h1 className="mb-8 text-center text-4xl leading-tight font-bold text-black">
                     Adăposturi protecție civilă
@@ -119,51 +120,55 @@ export default function SheltersApp() {
                     onStatusChange={setSelectedStatuses}
                 />
 
-                <div className="mb-6 flex items-center justify-between">
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setViewMode("map")}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                                viewMode === "map"
-                                    ? "bg-(--primary) text-(--primary-foreground)"
-                                    : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
-                            }`}
-                        >
-                            Hartă
-                        </button>
+                <div className="mb-4 flex flex-col rounded-2xl border border-stone-200 bg-white p-4 shadow-md">
+                    <div className="mb-4 flex items-center justify-between">
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setViewMode("map")}
+                                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                                    viewMode === "map"
+                                        ? "bg-(--primary) text-(--primary-foreground)"
+                                        : "bg-(--muted) hover:bg-(--border)"
+                                }`}
+                            >
+                                Hartă
+                            </button>
 
-                        <button
-                            onClick={() => setViewMode("table")}
-                            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                                viewMode === "table"
-                                    ? "bg-(--primary) text-(--primary-foreground)"
-                                    : "bg-(--muted) text-(--muted-foreground) hover:bg-(--border)"
-                            }`}
-                        >
-                            Tabel
-                        </button>
+                            <button
+                                onClick={() => setViewMode("table")}
+                                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                                    viewMode === "table"
+                                        ? "bg-(--primary) text-(--primary-foreground)"
+                                        : "bg-(--muted) hover:bg-(--border)"
+                                }`}
+                            >
+                                Tabel
+                            </button>
+                        </div>
+
+                        <div className="text-sm">
+                            <strong>
+                                {filteredShelters?.length?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                            </strong>{" "}
+                            adăposturi,{" "}
+                            <strong>{totalCapacity?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong> locuri
+                        </div>
                     </div>
 
-                    <div className="text-sm">
-                        <strong>{filteredShelters?.length?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong>{" "}
-                        adăposturi, <strong>{totalCapacity?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong>{" "}
-                        locuri
-                    </div>
+                    {viewMode === "map" ? (
+                        <div className="z-10 h-[500px] overflow-hidden rounded-xl border border-(--border) lg:h-[600px]">
+                            <MapComponent
+                                center={{
+                                    lat: currentLocation.center.lat,
+                                    lon: currentLocation.center.lon,
+                                }}
+                                shelters={filteredShelters}
+                            />
+                        </div>
+                    ) : (
+                        <ShelterTable shelters={filteredShelters} />
+                    )}
                 </div>
-
-                {viewMode === "map" ? (
-                    <div className="z-10 h-[500px] overflow-hidden rounded-lg border border-(--border) lg:h-[600px]">
-                        <MapComponent
-                            center={{
-                                lat: currentLocation.center.lat,
-                                lon: currentLocation.center.lon,
-                            }}
-                            shelters={filteredShelters}
-                        />
-                    </div>
-                ) : (
-                    <ShelterTable shelters={filteredShelters} />
-                )}
             </div>
         </div>
     );
