@@ -90,6 +90,10 @@ export default function SheltersApp() {
         });
     }, [currentLocation, selectedTownValues, selectedTypes, selectedCapacities, selectedStatuses]);
 
+    const totalCapacity = useMemo(() => {
+        return filteredShelters.reduce((total, shelter) => total + shelter.capacity, 0);
+    }, [filteredShelters]);
+
     return (
         <div className="flex min-h-screen justify-center bg-(--background)">
             <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-8">
@@ -140,7 +144,11 @@ export default function SheltersApp() {
                         </button>
                     </div>
 
-                    <div className="text-sm text-(--muted-foreground)">{filteredShelters.length} adăposturi găsite</div>
+                    <div className="text-sm">
+                        <strong>{filteredShelters?.length?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong>{" "}
+                        adăposturi, <strong>{totalCapacity?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</strong>{" "}
+                        locuri
+                    </div>
                 </div>
 
                 {viewMode === "map" ? (

@@ -5,6 +5,36 @@ import L from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Shelter } from "@/lib/types";
+import { Copy, Map, MapPinned } from "lucide-react";
+
+const decimalToDms = (decimal: number, type: "lat" | "lng"): string => {
+    const absolute = Math.abs(decimal);
+    const degrees = Math.floor(absolute);
+    const minutesFloat = (absolute - degrees) * 60;
+    const minutes = Math.floor(minutesFloat);
+    const seconds = ((minutesFloat - minutes) * 60).toFixed(1);
+
+    const direction = type === "lat" ? (decimal >= 0 ? "N" : "S") : decimal >= 0 ? "E" : "W";
+
+    return `${degrees}°${minutes}'${seconds}"${direction}`;
+};
+
+const createGoogleMapsPlaceLink = (query: string) => {
+    const trimmedQuery = query.trim();
+
+    const coordsMatch = trimmedQuery.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+
+    if (coordsMatch) {
+        const lat = Number(coordsMatch[1]);
+        const lng = Number(coordsMatch[2]);
+
+        const dmsQuery = `${decimalToDms(lat, "lat")} ${decimalToDms(lng, "lng")}`;
+
+        return `https://www.google.com/maps/place/${encodeURIComponent(dmsQuery).replace(/%20/g, "+")}/`;
+    }
+
+    return `https://www.google.com/maps/place/${encodeURIComponent(trimmedQuery).replace(/%20/g, "+")}/`;
+};
 
 const getStatusColor = (status?: string) => {
     switch (status) {
@@ -106,35 +136,76 @@ export default function MapComponent({ shelters, center }: MapComponentProps) {
             {shelters
                 .filter(shelter => Number.isFinite(shelter.lat))
                 .filter(shelter => Number.isFinite(shelter.lon))
-                .map(shelter => (
-                    <Marker
-                        key={`${shelter.county}-${shelter.id}-${shelter.index}`}
-                        position={[shelter.lat, shelter.lon]}
-                        icon={createShelterIcon(shelter)}
-                    >
-                        <Popup>
-                            <div className="space-y-1 text-sm">
-                                <p>
-                                    <strong>Capacitate:</strong> {shelter.capacity} persoane
-                                </p>
+                .map(shelter => {
+                    const addressUrl = createGoogleMapsPlaceLink(shelter.address);
+                    const coordsUrl = createGoogleMapsPlaceLink(`${shelter.lat}, ${shelter.lon}`);
+                    return (
+                        <Marker
+                            key={`${shelter.county}-${shelter.id}-${shelter.index}`}
+                            position={[shelter.lat, shelter.lon]}
+                            icon={createShelterIcon(shelter)}
+                        >
+                            <Popup>
+                                <div className="space-y-1">
+                                    <p className="text-lg leading-tight font-semibold">
+                                        <strong>{shelter.capacity}</strong> persoane,{" "}
+                                        {shelter.type === "public" ? "public" : "privat"},{" "}
+                                        {shelter.status === "green" ? (
+                                            <span className="text-green-600">funcțional</span>
+                                        ) : shelter.status === "orange" ? (
+                                            <span className="text-orange-500">parțial funcțional</span>
+                                        ) : (
+                                            <span className="text-red-500">nefuncțional</span>
+                                        )}
+                                    </p>
+                                    <p className="text-[1rem]">
+                                        <span className="mb-2 inline-flex w-full items-center justify-between gap-2">
+                                            <strong>Adresă:</strong>
+                                            {shelter.address && (
+                                                <div className="flex items-center justify-end gap-4">
+                                                    <a href={addressUrl} target="_blank" rel="noopener noreferrer">
+                                                        <Map className="inline-block h-5 w-5" />
+                                                    </a>
+                                                    <Copy
+                                                        className="inline-block h-5 w-5"
+                                                        onClick={() => navigator.clipboard.writeText(shelter.address)}
+                                                    />
+                                                </div>
+                                            )}
+                                        </span>
+                                        <br />
+                                        {shelter.address},<br />
+                                        {shelter.town}
+                                    </p>
 
-                                <p>
-                                    <strong>Adresă:</strong> {shelter.address}
-                                    <br />
-                                    <strong>Localitate/Sector:</strong> {shelter.town}
-                                </p>
-
-                                <p>
-                                    <strong>Tip:</strong> {shelter.type === "public" ? "Public" : "Privat"}
-                                </p>
-
-                                <p>
-                                    <strong>Coordonate:</strong> {shelter.lat}, {shelter.lon}
-                                </p>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                                    <p className="text-[1rem]">
+                                        <span className="mb-2 inline-flex w-full items-center justify-between gap-2">
+                                            <strong>Coordonate:</strong>
+                                            {shelter.lat && shelter.lon && (
+                                                <div className="flex items-center justify-end gap-4">
+                                                    <a href={coordsUrl} target="_blank" rel="noopener noreferrer">
+                                                        <MapPinned className="inline-block h-5 w-5" />
+                                                    </a>
+                                                    <Copy
+                                                        className="inline-block h-5 w-5"
+                                                        onClick={() =>
+                                                            navigator.clipboard.writeText(
+                                                                `${shelter.lat}, ${shelter.lon}`
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                        </span>
+                                        <span className="font-mono">
+                                            {shelter.lat}, {shelter.lon}
+                                        </span>
+                                    </p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
         </MapContainer>
     );
 }
